@@ -200,7 +200,7 @@ public class AddFragment extends Fragment {
     public  void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode,data);
 
-        if(resultCode== Activity.RESULT_OK){
+        if(resultCode== Activity.RESULT_OK) {
 
             addUpload.setVisibility(View.VISIBLE);
 
@@ -247,7 +247,7 @@ public class AddFragment extends Fragment {
 
         Bitmap srcBitmap;
         is = context.getContentResolver().openInputStream(photoUri);
-        Integer MAX_IMAGE_DIMENSION = 170;
+        Integer MAX_IMAGE_DIMENSION = 1024;
         if (rotatedWidth > MAX_IMAGE_DIMENSION || rotatedHeight > MAX_IMAGE_DIMENSION) {
             float widthRatio = ((float) rotatedWidth) / ((float) MAX_IMAGE_DIMENSION);
             float heightRatio = ((float) rotatedHeight) / ((float) MAX_IMAGE_DIMENSION);

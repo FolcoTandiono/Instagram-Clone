@@ -156,7 +156,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         Bitmap srcBitmap;
         is = context.getContentResolver().openInputStream(photoUri);
-        Integer MAX_IMAGE_DIMENSION = 170;
+        Integer MAX_IMAGE_DIMENSION = 1024;
         if (rotatedWidth > MAX_IMAGE_DIMENSION || rotatedHeight > MAX_IMAGE_DIMENSION) {
             float widthRatio = ((float) rotatedWidth) / ((float) MAX_IMAGE_DIMENSION);
             float heightRatio = ((float) rotatedHeight) / ((float) MAX_IMAGE_DIMENSION);

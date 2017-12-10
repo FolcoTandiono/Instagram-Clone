@@ -21,7 +21,7 @@
 
     <ImageView android:id="@+id/addImage"
         android:layout_width="match_parent"
-        android:layout_height="320dp"
+        android:layout_height="400dp"
         android:scaleType="fitXY"
         />
 
