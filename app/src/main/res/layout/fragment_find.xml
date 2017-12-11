@@ -72,49 +72,66 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="24dp"
+                    android:layout_height="48dp"
                     android:orientation="horizontal"
                     >
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="88dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/findProfilePosts"
-                        android:text="0"/>
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                    <TextView
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/findProfilePosts"
+                            android:text="0"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="posts"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/findProfileFollowersLayout"
                         android:layout_width="88dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/findProfileFollowers"
-                        android:text="0"/>
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                    <TextView
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/findProfileFollowers"
+                            android:text="0"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="followers"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/findProfileFollowingLayout"
                         android:layout_width="88dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/findProfileFollowing"
-                        android:text="0"/>
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/findProfileFollowing"
+                            android:text="0"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="24dp"
-                    android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="following"/>
 
-                    <TextView
-                        android:layout_width="88dp"
-                        android:layout_height="wrap_content"
-                        android:text="posts"/>
+                    </LinearLayout>
 
-                    <TextView
-                        android:layout_width="88dp"
-                        android:layout_height="wrap_content"
-                        android:text="followers"/>
-
-                    <TextView
-                        android:layout_width="88dp"
-                        android:layout_height="wrap_content"
-                        android:text="following"/>
 
                 </LinearLayout>
 

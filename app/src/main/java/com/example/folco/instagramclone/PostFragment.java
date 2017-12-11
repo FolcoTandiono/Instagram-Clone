@@ -100,7 +100,7 @@ public class PostFragment extends Fragment {
             public int compare(final Pair<Pair<Timestamp, User>, Bitmap> a, final Pair<Pair<Timestamp, User>, Bitmap> b) {
                 // TODO: implement your logic here
                 Long aa = a.first.first.getTime(), bb = b.first.first.getTime();
-                if (aa != bb) return aa.compareTo(bb);
+                if (aa != bb) return bb.compareTo(aa);
                 else {
                     return (a.first.second.getUsername().compareTo(b.first.second.getUsername()));
                 }

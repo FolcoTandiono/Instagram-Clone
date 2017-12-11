@@ -53,6 +53,7 @@ public class AddFragment extends Fragment {
     Integer REQUEST_CAMERA=1, SELECT_FILE=0;
     public ImageView addImage;
     public Button addUpload;
+    public Uri imageUri;
 
     public AddFragment() {
         // Required empty public constructor
@@ -176,8 +177,7 @@ public class AddFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (items[i].equals("Camera")) {
-
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(intent, REQUEST_CAMERA);
 
                 } else if (items[i].equals("Gallery")) {
@@ -206,8 +206,8 @@ public class AddFragment extends Fragment {
 
             if(requestCode==REQUEST_CAMERA){
 
-                Bundle bundle = data.getExtras();
-                final Bitmap bmp = (Bitmap) bundle.get("data");
+                Bitmap bmp = (Bitmap) data.getExtras().get("data");
+
                 addImage.setImageBitmap(bmp);
 
             }else if(requestCode==SELECT_FILE){

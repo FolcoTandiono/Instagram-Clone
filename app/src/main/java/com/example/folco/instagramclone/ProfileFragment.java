@@ -1,22 +1,34 @@
 package com.example.folco.instagramclone;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.folco.instagramclone.models.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.example.folco.instagramclone.Login.userNow;
+import static com.example.folco.instagramclone.R.id.followRecyclerView;
 
 
 /**
@@ -38,6 +50,16 @@ public class ProfileFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    public List<User> followersList = new ArrayList<User>();
+    public List<User> followingList = new ArrayList<User>();
+    public FollowAdapter followersAdapter;
+    public FollowAdapter followingAdapter;
+    public RecyclerView followersRecyclerView;
+    public RecyclerView followingRecyclerView;
+
+    public AlertDialog.Builder builderFollowers;
+    public AlertDialog.Builder builderFollowing;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -68,6 +90,26 @@ public class ProfileFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+    }
+
+    public void updateFollowers() {
+            followersList.clear();
+
+            for (User user : userNow.getFollowers()) {
+                followersList.add(user);
+            }
+
+            followersAdapter.notifyDataSetChanged();
+    }
+
+    public void updateFollowing() {
+        followingList.clear();
+
+        for (User user : userNow.getFollowing()) {
+            followingList.add(user);
+        }
+
+        followingAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -108,6 +150,70 @@ public class ProfileFragment extends Fragment {
 
         GridView profileGridview = (GridView) view.findViewById(R.id.profileGridview);
         profileGridview.setAdapter(new ImageAdapter(getActivity(), userNow));
+
+        builderFollowers = new AlertDialog.Builder(getActivity());
+        builderFollowing = new AlertDialog.Builder(getActivity());
+
+        LayoutInflater inflater1 = LayoutInflater.from(getActivity());
+        View content = inflater1.inflate(R.layout.follow, null);
+        View content1 = inflater1.inflate(R.layout.follow, null);
+
+        builderFollowers.setView(content);
+        builderFollowing.setView(content1);
+
+        followersRecyclerView = (RecyclerView) content.findViewById(followRecyclerView);
+        followingRecyclerView = (RecyclerView) content1.findViewById(followRecyclerView);
+
+        builderFollowers.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builderFollowing.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        followingAdapter = new FollowAdapter(followingList);
+        followersAdapter = new FollowAdapter(followersList);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        RecyclerView.LayoutManager mLayoutManager1 = new LinearLayoutManager(getActivity());
+
+        followingRecyclerView.setLayoutManager(mLayoutManager);
+        followingRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        followersRecyclerView.setLayoutManager(mLayoutManager1);
+        followersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        followingRecyclerView.setAdapter(followingAdapter);
+        followersRecyclerView.setAdapter(followersAdapter);
+
+        final AlertDialog alertDialogFollowers = builderFollowers.create();
+        final AlertDialog alertDialogFollowing = builderFollowing.create();
+
+        updateFollowers();
+        updateFollowing();
+
+        ((LinearLayout) view.findViewById(R.id.profileFollowersLayout)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateFollowers();
+                alertDialogFollowers.show();
+            }
+        });
+
+        ((LinearLayout) view.findViewById(R.id.profileFollowingLayout)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateFollowing();
+                alertDialogFollowing.show();
+            }
+        });
 
         return view;
     }
