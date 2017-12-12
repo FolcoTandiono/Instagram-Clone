@@ -1,7 +1,9 @@
 package com.example.folco.instagramclone;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -24,6 +26,8 @@ public class Login extends AppCompatActivity {
     public static String registerUsername;
     public static User userNow = new User();
 
+    public ProgressDialog progressDialog;
+    public int progress;
 
     public Boolean validate() {
         if (TextUtils.isEmpty(loginUsernameEmail)) {
@@ -63,15 +67,59 @@ public class Login extends AppCompatActivity {
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Login.loginUsernameEmail = ((EditText) findViewById(R.id.loginUsernameEmail)).getText().toString();
-                Login.loginPassword = ((EditText) findViewById(R.id.loginPassword)).getText().toString();
 
-                if (validate()) {
-                    if (userMatched()) {
-                        Intent intent = new Intent(Login.this, HomeActivity.class);
-                        startActivity(intent);
+                progressDialog = new ProgressDialog(Login.this);
+                progressDialog.setMessage("Please wait....");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.show();
+
+                progress = 0;
+
+                final Handler handler = new Handler();
+
+                // Start the lengthy operation in a background thread
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(progress < 2){
+                            // Update the progress status
+                            progress +=1;
+
+                            // Try to sleep the thread for 20 milliseconds
+                            try{
+                                Thread.sleep(1000);
+                            }catch(InterruptedException e){
+                                e.printStackTrace();
+                            }
+
+                            // Update the progress bar
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Update the progress status
+                                    progressDialog.setProgress(progress);
+                                    // If task execution completed
+                                    if(progress == 2){
+                                        // Dismiss/hide the progress dialog
+                                        progress++;
+                                        progressDialog.dismiss();
+
+                                        Login.loginUsernameEmail = ((EditText) findViewById(R.id.loginUsernameEmail)).getText().toString();
+                                        Login.loginPassword = ((EditText) findViewById(R.id.loginPassword)).getText().toString();
+
+                                        if (validate()) {
+                                            if (userMatched()) {
+                                                Intent intent = new Intent(Login.this, HomeActivity.class);
+                                                startActivity(intent);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
                     }
-                }
+                }).start(); // Start the operation
             }
         });
 

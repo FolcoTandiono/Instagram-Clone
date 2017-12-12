@@ -1,10 +1,12 @@
 package com.example.folco.instagramclone;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -62,6 +64,9 @@ public class FindFragment extends Fragment {
 
     public AlertDialog.Builder builderFollowers;
     public AlertDialog.Builder builderFollowing;
+
+    public ProgressDialog progressDialog;
+    public int progress;
 
     public FindFragment() {
         // Required empty public constructor
@@ -144,128 +149,174 @@ public class FindFragment extends Fragment {
         ImageView findFindIcon = (ImageView) view.findViewById(R.id.findFindIcon);
         final TextView findUsername = (TextView) view.findViewById(R.id.findUsername);
 
+        progressDialog = new ProgressDialog(getContext());
+
         findFindIcon.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                findWhat = findUsername.getText().toString();
-                if (findUser()) {
-//                    LinearLayout haha = (LinearLayout) getView().findViewById(R.id.findFound);
-                    getView().findViewById(R.id.findFound).setVisibility(View.VISIBLE);
-                    getView().findViewById(R.id.findNotFound).setVisibility(View.GONE);
-                    updateProfile();
 
-                    GridView findGridview = (GridView) getView().findViewById(R.id.findGridview);
-                    findGridview.setAdapter(new ImageAdapter(getActivity(), userFind));
+                progress = 0;
 
-                    final Button editProfileFollow = ((Button) getView().findViewById(R.id.findProfileFollow));
+                progressDialog.setMessage("Please wait....");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setIndeterminate(false);
+                progressDialog.show();
 
-                    if (findWhat.equals(userNow.getUsername())) {
-                        editProfileFollow.setText("Edit your profile");
-                        editProfileFollow.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Intent intent = new Intent(getActivity(), EditProfileActivity.class);
-                                startActivity(intent);
+                progress = 0;
+
+                final Handler handler = new Handler();
+
+                // Start the lengthy operation in a background thread
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (progress < 2) {
+                            // Update the progress status
+                            progress += 1;
+
+                            // Try to sleep the thread for 20 milliseconds
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
 
-                        });
-                    }
-                    else {
-                        if (userFind.getFollowers().contains(userNow)) {
-                            editProfileFollow.setText("Unfollow");
-                        }
-                        else {
-                            editProfileFollow.setText("Follow");
-                        }
-                        editProfileFollow.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if (editProfileFollow.getText().toString().equals("Follow")) {
-                                    editProfileFollow.setText("Unfollow");
-                                    userNow.getFollowing().add(userFind);
-                                    userFind.getFollowers().add(userNow);
-                                    updateProfile();
+                            // Update the progress bar
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Update the progress status
+                                    progressDialog.setProgress(progress);
+                                    // If task execution completed
+                                    if (progress == 2) {
+                                        // Dismiss/hide the progress dialog
+                                        progress++;
+                                        progressDialog.dismiss();
+
+                                        findWhat = findUsername.getText().toString();
+                                        if (findUser()) {
+                                            getView().findViewById(R.id.findFound).setVisibility(View.VISIBLE);
+                                            getView().findViewById(R.id.findNotFound).setVisibility(View.GONE);
+                                            updateProfile();
+
+                                            GridView findGridview = (GridView) getView().findViewById(R.id.findGridview);
+                                            findGridview.setAdapter(new ImageAdapter(getActivity(), userFind));
+
+                                            final Button editProfileFollow = ((Button) getView().findViewById(R.id.findProfileFollow));
+
+                                            if (findWhat.equals(userNow.getUsername())) {
+                                                editProfileFollow.setText("Edit your profile");
+                                                editProfileFollow.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+                                                        startActivity(intent);
+                                                    }
+
+                                                });
+                                            }
+                                            else {
+                                                if (userFind.getFollowers().contains(userNow)) {
+                                                    editProfileFollow.setText("Unfollow");
+                                                }
+                                                else {
+                                                    editProfileFollow.setText("Follow");
+                                                }
+                                                editProfileFollow.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        if (editProfileFollow.getText().toString().equals("Follow")) {
+                                                            editProfileFollow.setText("Unfollow");
+                                                            userNow.getFollowing().add(userFind);
+                                                            userFind.getFollowers().add(userNow);
+                                                            updateProfile();
+                                                        }
+                                                        else {
+                                                            editProfileFollow.setText("Follow");
+                                                            userNow.getFollowing().remove(userFind);
+                                                            userFind.getFollowers().remove(userNow);
+                                                            updateProfile();
+                                                        }
+                                                    }
+                                                });
+                                            }
+
+                                            builderFollowers = new AlertDialog.Builder(getActivity());
+                                            builderFollowing = new AlertDialog.Builder(getActivity());
+
+                                            LayoutInflater inflater1 = LayoutInflater.from(getActivity());
+                                            View content = inflater1.inflate(R.layout.follow, null);
+                                            View content1 = inflater1.inflate(R.layout.follow, null);
+
+                                            builderFollowers.setView(content);
+                                            builderFollowing.setView(content1);
+
+                                            followersRecyclerView = (RecyclerView) content.findViewById(R.id.followRecyclerView);
+                                            followingRecyclerView = (RecyclerView) content1.findViewById(R.id.followRecyclerView);
+
+                                            builderFollowers.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+
+                                            builderFollowing.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+
+                                            followingAdapter = new FollowAdapter(followingList);
+                                            followersAdapter = new FollowAdapter(followersList);
+
+                                            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+                                            RecyclerView.LayoutManager mLayoutManager1 = new LinearLayoutManager(getActivity());
+
+                                            followingRecyclerView.setLayoutManager(mLayoutManager);
+                                            followingRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+                                            followersRecyclerView.setLayoutManager(mLayoutManager1);
+                                            followersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+                                            followingRecyclerView.setAdapter(followingAdapter);
+                                            followersRecyclerView.setAdapter(followersAdapter);
+
+                                            final AlertDialog alertDialogFollowers = builderFollowers.create();
+                                            final AlertDialog alertDialogFollowing = builderFollowing.create();
+
+                                            updateFollowers();
+                                            updateFollowing();
+
+                                            ((LinearLayout) getView().findViewById(R.id.findProfileFollowersLayout)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    updateFollowers();
+                                                    alertDialogFollowers.show();
+                                                }
+                                            });
+
+                                            ((LinearLayout) getView().findViewById(R.id.findProfileFollowingLayout)).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    updateFollowing();
+                                                    alertDialogFollowing.show();
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            getView().findViewById(R.id.findFound).setVisibility(View.GONE);
+                                            getView().findViewById(R.id.findNotFound).setVisibility(View.VISIBLE);
+                                        }
+                                    }
                                 }
-                                else {
-                                    editProfileFollow.setText("Follow");
-                                    userNow.getFollowing().remove(userFind);
-                                    userFind.getFollowers().remove(userNow);
-                                    updateProfile();
-                                }
-                            }
-                        });
+                            });
+                        }
                     }
+                }).start(); // Start the operation
 
-                    builderFollowers = new AlertDialog.Builder(getActivity());
-                    builderFollowing = new AlertDialog.Builder(getActivity());
-
-                    LayoutInflater inflater1 = LayoutInflater.from(getActivity());
-                    View content = inflater1.inflate(R.layout.follow, null);
-                    View content1 = inflater1.inflate(R.layout.follow, null);
-
-                    builderFollowers.setView(content);
-                    builderFollowing.setView(content1);
-
-                    followersRecyclerView = (RecyclerView) content.findViewById(R.id.followRecyclerView);
-                    followingRecyclerView = (RecyclerView) content1.findViewById(R.id.followRecyclerView);
-
-                    builderFollowers.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    builderFollowing.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    followingAdapter = new FollowAdapter(followingList);
-                    followersAdapter = new FollowAdapter(followersList);
-
-                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-                    RecyclerView.LayoutManager mLayoutManager1 = new LinearLayoutManager(getActivity());
-
-                    followingRecyclerView.setLayoutManager(mLayoutManager);
-                    followingRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-                    followersRecyclerView.setLayoutManager(mLayoutManager1);
-                    followersRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-                    followingRecyclerView.setAdapter(followingAdapter);
-                    followersRecyclerView.setAdapter(followersAdapter);
-
-                    final AlertDialog alertDialogFollowers = builderFollowers.create();
-                    final AlertDialog alertDialogFollowing = builderFollowing.create();
-
-                    updateFollowers();
-                    updateFollowing();
-
-                    ((LinearLayout) getView().findViewById(R.id.findProfileFollowersLayout)).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            updateFollowers();
-                            alertDialogFollowers.show();
-                        }
-                    });
-
-                    ((LinearLayout) getView().findViewById(R.id.findProfileFollowingLayout)).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            updateFollowing();
-                            alertDialogFollowing.show();
-                        }
-                    });
-                }
-                else {
-//                    LinearLayout haha = (LinearLayout) getView().findViewById(R.id.findFound);
-                    getView().findViewById(R.id.findFound).setVisibility(View.GONE);
-                    getView().findViewById(R.id.findNotFound).setVisibility(View.VISIBLE);
-                }
             }
         });
 
